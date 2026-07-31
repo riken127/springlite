@@ -29,7 +29,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <!-- Versions outside the Spring Boot BOM. -->
-    <archunit.version>1.4.1</archunit.version>
+    <archunit.version>1.4.2</archunit.version>
     <checkstyle.version>13.4.2</checkstyle.version>
     <error-prone.version>2.42.0</error-prone.version>
     <google.java.format.version>1.35.0</google.java.format.version>
