@@ -31,7 +31,7 @@
     <!-- Versions outside the Spring Boot BOM. -->
     <archunit.version>1.4.1</archunit.version>
     <checkstyle.version>13.4.2</checkstyle.version>
-    <error-prone.version>2.42.0</error-prone.version>
+    <error-prone.version>2.50.0</error-prone.version>
     <google.java.format.version>1.35.0</google.java.format.version>
     <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
     <maven.enforcer.plugin.version>3.6.2</maven.enforcer.plugin.version>
