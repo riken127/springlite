@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: ${SERVICE_NAME:springlite}
+  threads:
+    virtual:
+      enabled: true
+  main:
+    keep-alive: true
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/springlite}
+    username: ${DATABASE_USERNAME:springlite}
+    password: ${DATABASE_PASSWORD:springlite}
+    hikari:
+      maximum-pool-size: ${DATABASE_MAX_POOL_SIZE:5}
+      minimum-idle: ${DATABASE_MIN_IDLE:1}
+      pool-name: ${SERVICE_NAME:springlite}-db
+  flyway:
+    locations: classpath:db/migration
+  jooq:
+    sql-dialect: POSTGRES
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
+server:
+  port: ${HTTP_PORT:8080}
+  shutdown: graceful
+  max-http-request-header-size: 16KB
+  tomcat:
+    max-http-form-post-size: 1MB
+
+app:
+  service-name: ${SERVICE_NAME:springlite}
+  environment: ${APP_ENVIRONMENT:local}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db
+      show-details: never
+  metrics:
+    tags:
+      service: ${SERVICE_NAME:springlite}
+      environment: ${APP_ENVIRONMENT:local}
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}
+    org.jooq.Constants: WARN
+    org.jooq.tools.LoggerListener: WARN
+  pattern:
+    correlation: "[${spring.application.name:},%X{correlationId:-}] "

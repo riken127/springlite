@@ -1,0 +1,22 @@
+FROM ghcr.io/graalvm/native-image-community:25 AS build
+ENV LANG=C LC_ALL=C
+ARG QUICK_BUILD=false
+WORKDIR /workspace
+COPY .mvn .mvn
+COPY mvnw pom.xml ./
+COPY app/pom.xml app/pom.xml
+RUN ./mvnw -B -pl app -am dependency:go-offline
+COPY app/src app/src
+RUN ./mvnw -B -pl app -Pnative -DskipTests -DquickBuild=${QUICK_BUILD} native:compile
+
+FROM debian:bookworm-slim
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends ca-certificates tzdata \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system --gid 10001 springlite \
+    && useradd --system --uid 10001 --gid springlite --home-dir /nonexistent springlite
+WORKDIR /app
+COPY --from=build --chown=springlite:springlite /workspace/app/target/springlite-app /app/springlite
+USER 10001
+EXPOSE 8080
+ENTRYPOINT ["/app/springlite"]

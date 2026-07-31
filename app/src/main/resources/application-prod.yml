@@ -1,0 +1,8 @@
+logging:
+  structured:
+    format:
+      console: logstash
+    json:
+      add:
+        service: ${SERVICE_NAME:springlite}
+        environment: ${APP_ENVIRONMENT:production}

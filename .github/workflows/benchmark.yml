@@ -1,0 +1,39 @@
+name: Runtime benchmark
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * 1'
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '25'
+          distribution: graalvm-community
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache: maven
+      - name: Install oha
+        run: |
+          OHA_VERSION=1.11.0
+          curl --fail --location --silent --show-error \
+            "https://github.com/hatoo/oha/releases/download/v${OHA_VERSION}/oha-linux-amd64" \
+            --output /usr/local/bin/oha
+          chmod +x /usr/local/bin/oha
+      - name: Compare runtimes
+        run: make compare-runtimes
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: runtime-benchmark-results
+          path: benchmarks/results/
+          if-no-files-found: error

@@ -1,0 +1,2 @@
+# Minimal CPU workload
+oha -z 15s -c 20 --json http://localhost:8080/v1/system/ping

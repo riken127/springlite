@@ -1,0 +1,9 @@
+target/
+*.log
+.DS_Store
+.env
+benchmarks/results/*
+!benchmarks/results/.gitkeep
+!benchmarks/results/example-report.md
+app/application/
+app/*.aot

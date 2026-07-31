@@ -1,0 +1,47 @@
+name: Native
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: springlite
+          POSTGRES_USER: springlite
+          POSTGRES_PASSWORD: springlite
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U springlite -d springlite"
+          --health-interval 2s --health-timeout 3s --health-retries 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '25'
+          distribution: graalvm-community
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache: maven
+      - name: Build native executable
+        run: ./mvnw --batch-mode -pl app -Pnative -DskipTests native:compile
+      - name: Native smoke test
+        run: scripts/native-smoke-test.sh
+      - name: Upload executable and failure logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: springlite-native-linux-amd64
+          path: |
+            app/target/springlite-app
+            app/target/native-smoke.log
+          if-no-files-found: warn

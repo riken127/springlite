@@ -1,0 +1,17 @@
+FROM eclipse-temurin:25-jdk-alpine AS build
+WORKDIR /workspace
+COPY .mvn .mvn
+COPY mvnw pom.xml ./
+COPY app/pom.xml app/pom.xml
+RUN ./mvnw -B -pl app -am dependency:go-offline
+COPY app/src app/src
+RUN ./mvnw -B -pl app -am -DskipTests package
+
+FROM eclipse-temurin:25-jre-alpine
+RUN addgroup -S springlite && adduser -S -G springlite -u 10001 springlite
+WORKDIR /app
+COPY --from=build --chown=springlite:springlite /workspace/app/target/springlite-app-0.1.0-SNAPSHOT.jar app.jar
+USER 10001
+EXPOSE 8080
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75"
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]
